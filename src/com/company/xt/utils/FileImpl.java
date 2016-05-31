@@ -1,5 +1,7 @@
 package com.company.xt.utils;
 
+import net.sf.json.JSONObject;
+
 import java.io.*;
 import java.nio.channels.FileChannel;
 
@@ -235,8 +237,13 @@ public class FileImpl implements FileUtil {
     @Override
     public long getFileLastChangeTime(String fileName) {
         File temp = new File(fileName);
-        if (temp.exists()) {
-            return temp.lastModified();
+        return getFileLastChangeTime(temp);
+    }
+
+    @Override
+    public long getFileLastChangeTime(File file) {
+        if (file.exists()) {
+            return file.lastModified();
         }
         return 0;
     }
@@ -272,6 +279,16 @@ public class FileImpl implements FileUtil {
             }
         }
         return false;
+    }
+
+    @Override
+    public JSONObject fileInfo(File file) {
+        String md5 = getFileMD5(file);
+        long lastTime = getFileLastChangeTime(file);
+        long size = file.length();
+        JSONObject object = JSONObject.fromString("{\"lasttime\":" + lastTime
+                + ",\"md5\":\"" + md5 + "\",\"size\":" + size + ",\"allpath\":\"" + file.getAbsolutePath() + "\"}");
+        return object;
     }
 
 
@@ -394,6 +411,34 @@ public class FileImpl implements FileUtil {
             deleteResult = deleteDir(desDir);
         }
         return copy & deleteResult;
+    }
+
+    @Override
+    public JSONObject dirInfo(String dirString) {
+        File dir = new File(dirString);
+        JSONObject dirJson = new JSONObject();
+
+        if (dir.exists() && dir.isFile()) {
+            return fileInfo(dir);
+        }
+
+        if (dir.exists() && dir.isDirectory()) {
+            File[] subFiles = dir.listFiles();
+            for (File file : subFiles) {
+                if (file.isDirectory()) {
+                    dirJson.put("isDirectory", file.getAbsolutePath());
+                    if (!dirString.endsWith(File.separator)) {
+                        dirString += File.separator;
+                    }
+                    dirJson.put(file.getName(), dirInfo(dirString + file.getName() + File.separator));
+                } else {
+                    dirJson.put(file.getName(), fileInfo(file));
+                }
+            }
+
+            return dirJson;
+        }
+        return null;
     }
 
 

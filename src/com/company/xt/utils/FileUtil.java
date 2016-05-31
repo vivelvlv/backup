@@ -1,5 +1,8 @@
 package com.company.xt.utils;
 
+import jdk.nashorn.api.scripting.JSObject;
+import net.sf.json.JSONObject;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -55,6 +58,7 @@ public interface FileUtil {
 
     // 获得文件上一次更新时间
     public long getFileLastChangeTime(String fileName);
+    public long getFileLastChangeTime(File file);
 
     // 获得文件MD5值
     public String getFileMD5(String fileName);
@@ -63,6 +67,10 @@ public interface FileUtil {
 
     // 两个文件是否一致
     public boolean isFileSame(String oldFileName, String NewFileName);
+
+
+    // 生成文件的信息json
+    public JSONObject fileInfo(File file);
 
 
     ////////////////////////////////////////////////////////
@@ -88,5 +96,8 @@ public interface FileUtil {
 
     // 移动文件夹
     public boolean moveDir(String srcDir, String desDir) throws FileNotFoundException;
+
+    // 文件夹的JSON 信息
+    public JSONObject dirInfo(String dir);
 
 }
