@@ -426,11 +426,14 @@ public class FileImpl implements FileUtil {
             File[] subFiles = dir.listFiles();
             for (File file : subFiles) {
                 if (file.isDirectory()) {
-                    dirJson.put("isDirectory", file.getAbsolutePath());
+
                     if (!dirString.endsWith(File.separator)) {
                         dirString += File.separator;
                     }
-                    dirJson.put(file.getName(), dirInfo(dirString + file.getName() + File.separator));
+
+                    JSONObject subDirJson = dirInfo(dirString + file.getName() + File.separator);
+                    subDirJson.put("isDirectory", file.getAbsolutePath());
+                    dirJson.put(file.getName(), subDirJson);
                 } else {
                     dirJson.put(file.getName(), fileInfo(file));
                 }
