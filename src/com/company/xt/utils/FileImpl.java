@@ -421,6 +421,7 @@ public class FileImpl implements FileUtil {
 
     @Override
     public JSONObject dirInfo(String dirString) {
+        // System.getProperty("line.separator");
         File dir = new File(dirString);
         JSONObject dirJson = new JSONObject();
 
@@ -450,5 +451,34 @@ public class FileImpl implements FileUtil {
         return null;
     }
 
+    public String calcRomatePath(String myName, String serverAddr, String myBackUpDir, String currentFilePath) {
+        // 在server上的位置: serverAddr + myName + myBackUpDirName + 相对的文件path
+        // 相对的文件path = currentFilePath - myBackUpDir
+
+        // 获得相对path
+        String myTempBackUpDir = myBackUpDir;
+        if (!myBackUpDir.endsWith(File.separator)) {
+            myTempBackUpDir += File.separator;
+        }
+        int length = myTempBackUpDir.length();
+
+        // 获得相对路径下的短名称,最顶部没有文件路径分隔符
+        String shortPath = currentFilePath.substring(length);
+
+        String remotePath = null;
+        if (!serverAddr.endsWith(File.separator)) {
+            remotePath = serverAddr + File.separator + myName + File.separator;
+        } else {
+            remotePath = serverAddr + myName + File.separator;
+        }
+
+        String tempMyBackUpDirName = new File(myBackUpDir).getName();
+
+        //增加我的备份文件夹的路径和相对路径名
+        remotePath += tempMyBackUpDirName + File.separator + shortPath;
+
+
+        return remotePath;
+    }
 
 }

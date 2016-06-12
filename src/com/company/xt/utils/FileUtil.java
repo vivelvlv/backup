@@ -58,6 +58,7 @@ public interface FileUtil {
 
     // 获得文件上一次更新时间
     public long getFileLastChangeTime(String fileName);
+
     public long getFileLastChangeTime(File file);
 
     // 获得文件MD5值
@@ -99,5 +100,8 @@ public interface FileUtil {
 
     // 文件夹的JSON 信息
     public JSONObject dirInfo(String dir);
+
+    // 把本地路径转化成远程server路径
+    public String calcRomatePath(String myName, String serverAddr, String myBackUpDir, String currentFilePath);
 
 }

@@ -10,7 +10,7 @@ import java.io.File;
 public class writeImageTest {
     public static void main(String[] args) {
         FileImpl fileUtil = new FileImpl();
-        File file = new File("/Users/vive/Downloads/ddd_jpeg_test.bin");
-        fileUtil.writeFile(file, "v".getBytes(), true);
+        File file = new File("/Users/vive/Downloads/MainActivity副本.java");
+        fileUtil.writeFile(file, ("v"+System.getProperty("line.separator")+"hshs").getBytes(), true);
     }
 }

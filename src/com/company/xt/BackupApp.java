@@ -42,14 +42,13 @@ public class BackupApp {
         FileUtil fileUtil = new FileImpl();
 
         while (true) {
-
             // 扫描本地对应的文件夹
-
             for (int index = 0; index < backupDirList.length(); index++) {
                 // 获得本地需要备份的文件列表信息
                 String item = backupDirList.optString(index);
                 // 计算文件夹下的所有文件的树状图,文件名,文件MD5,上一次修改时间
                 System.out.println("对" + item + "目录下的文件进行MD5校验");
+
                 JSONObject localItemJson = fileUtil.dirInfo(item);
 
                 // 获得该文件夹在服务器上历史记录的json
