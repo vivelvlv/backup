@@ -176,6 +176,11 @@ public class FileImpl implements FileUtil {
      */
     @Override
     public boolean copyFile(File sourceFile, File descFile, boolean overlay) {
+        try {
+            System.out.println("[copy file] " + sourceFile.getCanonicalPath());
+        } catch (Exception e) {
+
+        }
         if (!sourceFile.exists() || !sourceFile.isFile()) {
             return false;
         }
@@ -352,6 +357,7 @@ public class FileImpl implements FileUtil {
      */
     @Override
     public boolean copyDir(String srcDir, String desDir) throws FileNotFoundException {
+        System.out.println("[copy dir] " + srcDir);
         // 获得拷贝目录的内容
         File src = new File(srcDir);
         if (!src.exists() || !src.isDirectory()) {

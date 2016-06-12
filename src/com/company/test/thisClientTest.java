@@ -8,7 +8,5 @@ import com.company.xt.clientinfo.ThisClient;
 public class thisClientTest {
     public static void main(String[] args) {
         ThisClient thisClient = new ThisClient();
-        thisClient.getMyServerDir();
-        thisClient.getMyName();
     }
 }

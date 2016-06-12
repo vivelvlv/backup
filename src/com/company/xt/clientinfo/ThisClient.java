@@ -1,6 +1,7 @@
 package com.company.xt.clientinfo;
 
 import com.company.xt.utils.FileImpl;
+import com.company.xt.utils.FileUtil;
 import com.company.xt.utils.TextUtil;
 import net.sf.json.JSONObject;
 
@@ -12,27 +13,15 @@ import java.util.Scanner;
  */
 public class ThisClient {
     private String myName; // 我的机器名字
-    private final static String NAME = "name";
-    private String[] myDirs; // 我需要维护的目录列表
-    private final static String DIRS = "dirs";
     private String myServerDir; // 我在server 上的位置
-    private final static String ADDR = "addr";
-    private String myLocalHistroy; // 我本地的所有文件的记录和状态
-    private final static String LOCALHISTROY = "localhistroy";
-    private String myServerHistroy; // 我在server端的文件的记录和状态
-    private final static String SERVERHiSTROY = "serverhistroy";
-    private long myBeginTime; // 我开始备份时间
-    private final static String BEGINTIME = "begintime";
-    private long myIntervalTime; // 我的备份间隔
-    private final static String INTERVALTIME = "intervaltime";
 
     /**
      * config 这些配置文件用来,让程序知道自己的名字,自己在server上的地址,自己需要备份的目录
      */
-    private JSONObject localConfig;
+    private JSONObject baseConfig;
     private File configFile;
-    private FileImpl fileUtil;
-    private static final String LOCAL_CONFIG = "." + File.separator + "config.json";
+    private FileUtil fileUtil;
+    private static final String BASE_CONFIG = "." + File.separator + "baseConfig.json";
 
     /**
      * histroy 是用来记录这些目录下的文件被备份之后的记录,包括上一次备份时间,对应的md5,对应的在server上的地址
@@ -43,7 +32,7 @@ public class ThisClient {
         fileUtil = new FileImpl();
 
         // 从本地去读config文件
-        configFile = new File(LOCAL_CONFIG);
+        configFile = new File(BASE_CONFIG);
         if (!configFile.exists()) {
             try {
                 configFile.createNewFile();
@@ -54,10 +43,13 @@ public class ThisClient {
 
         String configInfo = fileUtil.readFile(configFile);
         if (configInfo == null || configInfo.equals("")) {
-            localConfig = null;
+            baseConfig = null;
         } else {
-            localConfig = JSONObject.fromString(configInfo);
+            baseConfig = JSONObject.fromString(configInfo);
         }
+
+        getMyName();
+        getMyServerDir();
 
     }
 
@@ -69,41 +61,42 @@ public class ThisClient {
     * */
 
     public String getMyServerDir() {
-        return getObject(ADDR, "请输入本机在server上的备份地址:");
+        if (TextUtil.isEmpty(myServerDir)) {
+            myServerDir = getObject("address", "请输入本机在server上的备份地址:");
+        }
+        return myServerDir;
     }
 
     public String getMyName() {
-        return getObject(NAME, "请输入本机的名字:");
+        if (TextUtil.isEmpty(myName)) {
+            myName = getObject("name", "请输入本机的名字:");
+        }
+        return myName;
     }
 
-    public String[] getDirs() {
-        String tempDirString = getObject(DIRS, "请请输入本机需要备份的文件夹路径,以逗号分隔");
-        String[] tempDirs = tempDirString.split(",");
-        return tempDirs;
-    }
-
-
+    // 如果本地baseConfig中存在的那么就从配置文件中读取,否则从控制台读取,并且把从控制台读取的内容写入到baseConfig中
     private String getObject(String type, String prompt) {
-        if (localConfig != null) {
-            String temp = localConfig.optString(type);
+        if (baseConfig != null) {
+            String temp = baseConfig.optString(type);
             if (TextUtil.isEmpty(temp)) {
                 temp = readDataFromConsole(prompt);
             } else {
                 return temp;
             }
-            localConfig.remove(type);
-            localConfig.put(type, temp);
-            fileUtil.writeFile(configFile, localConfig.toString().getBytes(), false);
+            baseConfig.remove(type);
+            baseConfig.put(type, temp);
+            fileUtil.writeFile(configFile, baseConfig.toString().getBytes(), false);
             return temp;
         } else {
-            localConfig = new JSONObject();
+            baseConfig = new JSONObject();
             String temp = readDataFromConsole(prompt);
-            localConfig.put(type, temp);
-            fileUtil.writeFile(configFile, localConfig.toString().getBytes(), false);
+            baseConfig.put(type, temp);
+            fileUtil.writeFile(configFile, baseConfig.toString().getBytes(), false);
             return temp;
         }
     }
 
+    // 从控制台读取内容
     private String readDataFromConsole(String prompt) {
         Scanner scanner = new Scanner(System.in);
         System.out.println(prompt);
