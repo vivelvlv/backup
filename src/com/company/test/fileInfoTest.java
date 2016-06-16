@@ -12,6 +12,6 @@ public class fileInfoTest {
         FileImpl fileUtil = new FileImpl();
         File file = new File("/Users/vive/Desktop/backup/src/com/company/");
         //
-        System.out.println(fileUtil.dirInfo("/Users/vive/Desktop/backup/src/com/company/"));
+//        System.out.println(fileUtil.dirInfo("/Users/vive/Desktop/backup/src/com/company/"));
     }
 }

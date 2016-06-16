@@ -5,6 +5,7 @@ import net.sf.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 /**
  * Created by vive on 16/5/9.
@@ -25,8 +26,12 @@ public interface FileUtil {
     public static int DIR_NO_LASTEST = 7;// 目录不是最新的
     public static int IS_DIR_NOT_FILE = 8;// 是目录不是文件
 
+    public interface Operate {
+        boolean operate(File file,String[] info);
+    }
+
     // 创建文件
-    public int createFile(String fileName);
+    public File createFile(String fileName);
 
     // 文件是否存在
     public boolean isFileExist(String fileName);
@@ -70,8 +75,8 @@ public interface FileUtil {
     public boolean isFileSame(String oldFileName, String NewFileName);
 
 
-    // 生成文件的信息json
-    public JSONObject fileInfo(File file);
+    // 生成文件的信息
+    public String[] fileInfo(File file, List<String[]> histroyConfig,Operate operate);
 
 
     ////////////////////////////////////////////////////////
@@ -98,8 +103,9 @@ public interface FileUtil {
     // 移动文件夹
     public boolean moveDir(String srcDir, String desDir) throws FileNotFoundException;
 
-    // 文件夹的JSON 信息
-    public JSONObject dirInfo(String dir);
+
+    public List<String[]> dirInfo(String dir, List<String[]> histroyConfig,Operate operate);
+
 
     // 把本地路径转化成远程server路径
     public String calcRomatePath(String myName, String serverAddr, String myBackUpDir, String currentFilePath);

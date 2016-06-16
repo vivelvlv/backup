@@ -1,9 +1,11 @@
 package com.company.xt.utils;
 
-import net.sf.json.JSONObject;
-
 import java.io.*;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by vive on 16/5/9.
@@ -17,13 +19,13 @@ public class FileImpl implements FileUtil {
     }
 
     @Override
-    public int createFile(String fileName) {
+    public File createFile(String fileName) {
         File temp = new File(fileName);
         if (temp.exists()) {
-            return FILE_EXIST;
+            return temp;
         }
         if (fileName.endsWith(File.separator)) {
-            return IS_DIR_NOT_FILE;
+            return null;
         }
 
         if (!temp.getParentFile().exists()) {
@@ -32,12 +34,12 @@ public class FileImpl implements FileUtil {
 
         try {
             if (temp.createNewFile()) {
-                return CREATE_FILE_SUCCESS;
+                return temp;
             } else {
-                return CREATE_FILE_FAIL;
+                return null;
             }
         } catch (IOException e) {
-            return CREATE_FILE_FAIL;
+            return null;
         }
     }
 
@@ -286,14 +288,59 @@ public class FileImpl implements FileUtil {
         return false;
     }
 
+    List<String[]> cachehistroyConfig;
+    Map<String, String[]> cacheMap;
+
     @Override
-    public JSONObject fileInfo(File file) {
-        String md5 = getFileMD5(file);
+    public String[] fileInfo(File file, List<String[]> histroyConfig, Operate callback) {
+        String md5 = null;
         long lastTime = getFileLastChangeTime(file);
         long size = file.length();
-        JSONObject object = JSONObject.fromString("{\"lasttime\":" + lastTime
-                + ",\"md5\":\"" + md5 + "\",\"size\":" + size + ",\"allpath\":\"" + file.getAbsolutePath() + "\"}");
-        return object;
+
+        String[] resultReturn;
+
+        if (histroyConfig == null) {
+            // 直接计算MD5的整个列表
+            md5 = getFileMD5(file);
+            if (callback != null) {
+                resultReturn = new String[]{md5, lastTime + "", size + "", file.getAbsolutePath(), file.getName()};
+                callback.operate(file, resultReturn);
+            }
+        } else {
+            if (cachehistroyConfig == histroyConfig) {
+                // 表示已经命中缓存
+            } else {
+                cachehistroyConfig = histroyConfig;
+                // 未命中缓存
+                cacheMap = new HashMap<>();
+                for (String[] item : histroyConfig) {
+                    cacheMap.put(item[3], item);
+                }
+
+            }
+
+            String[] result = cacheMap.get(file.getAbsolutePath());
+            if (result == null) {
+                md5 = getFileMD5(file);
+                if (callback != null) {
+                    resultReturn = new String[]{md5, lastTime + "", size + "", file.getAbsolutePath(), file.getName()};
+                    callback.operate(file, resultReturn);
+                }
+            } else {
+                if (result[1].equals(lastTime + "")) {
+                    md5 = result[0];
+                } else {
+                    md5 = getFileMD5(file);
+                    if (callback != null) {
+                        resultReturn = new String[]{md5, lastTime + "", size + "", file.getAbsolutePath(), file.getName()};
+                        callback.operate(file, resultReturn);
+                    }
+                }
+            }
+
+        }
+        resultReturn = new String[]{md5, lastTime + "", size + "", file.getAbsolutePath(), file.getName()};
+        return resultReturn;
     }
 
 
@@ -420,37 +467,48 @@ public class FileImpl implements FileUtil {
     }
 
     @Override
-    public JSONObject dirInfo(String dirString) {
+    public List<String[]> dirInfo(String dirString, List<String[]> histroyConfig, Operate callback) {
         // System.getProperty("line.separator");
         File dir = new File(dirString);
-        JSONObject dirJson = new JSONObject();
-
+        List<String[]> tempList = new ArrayList<>();
         if (dir.exists() && dir.isFile()) {
-            return fileInfo(dir);
+            tempList.add(fileInfo(dir, histroyConfig, callback));
+            return tempList;
         }
 
         if (dir.exists() && dir.isDirectory()) {
-            File[] subFiles = dir.listFiles();
-            for (File file : subFiles) {
-                if (file.isDirectory()) {
-
-                    if (!dirString.endsWith(File.separator)) {
-                        dirString += File.separator;
-                    }
-
-                    JSONObject subDirJson = dirInfo(dirString + file.getName() + File.separator);
-                    subDirJson.put("isDirectory", file.getAbsolutePath());
-                    dirJson.put(file.getName(), subDirJson);
-                } else {
-                    dirJson.put(file.getName(), fileInfo(file));
-                }
-            }
-
-            return dirJson;
+            dirInfoLooper(dir, tempList, histroyConfig, callback);
+            return tempList;
         }
         return null;
     }
 
+
+    private List<String[]> dirInfoLooper(File dir, List<String[]> contentList, List<String[]> histroyConfig, Operate callback) {
+        if (dir.exists() && dir.isFile()) {
+            contentList.add(fileInfo(dir, histroyConfig, callback));
+            return contentList;
+        }
+        if (dir.exists() && dir.isDirectory()) {
+            File[] subFiles = dir.listFiles();
+            for (File file : subFiles) {
+                if (file.isDirectory()) {
+                    dirInfoLooper(file, contentList, histroyConfig, callback);
+                } else {
+                    contentList.add(fileInfo(file, histroyConfig, callback));
+                }
+            }
+        }
+        return contentList;
+    }
+
+    /**
+     * @param myName          本地客户端名字
+     * @param serverAddr      在服务器上的根目录
+     * @param myBackUpDir     本地文件所在的根存储目录
+     * @param currentFilePath 本地文件的所在目录
+     * @return
+     */
     public String calcRomatePath(String myName, String serverAddr, String myBackUpDir, String currentFilePath) {
         // 在server上的位置: serverAddr + myName + myBackUpDirName + 相对的文件path
         // 相对的文件path = currentFilePath - myBackUpDir

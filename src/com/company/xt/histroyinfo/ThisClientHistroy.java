@@ -3,20 +3,24 @@ package com.company.xt.histroyinfo;
 
 import com.company.xt.utils.FileImpl;
 import com.company.xt.utils.FileUtil;
-import com.company.xt.utils.TextUtil;
-import net.sf.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by vive on 16/6/5.
  */
 public class ThisClientHistroy {
 
-    private String histroyConfigString;
-    private JSONObject histroyConfigJson;
     private FileUtil fileUtil;
-    private File histroyConfigFile;
+    private Map<String, File> histroyConfigFile;
+    private String allpath;
 
     /**
      * @param name    本机的名字
@@ -24,40 +28,68 @@ public class ThisClientHistroy {
      */
     public ThisClientHistroy(String name, String address) {
         fileUtil = new FileImpl();
-        String romtePath = address;
-        if (!romtePath.endsWith(File.separator)) {
-            romtePath += File.separator;
+        allpath = address;
+        if (!allpath.endsWith(File.separator)) {
+            allpath += File.separator;
         }
-        romtePath += name + File.separator + "histroy.json";
-
-        histroyConfigFile = new File(romtePath);
-        if (histroyConfigFile.exists() && histroyConfigFile.isFile()) {
-            histroyConfigString = fileUtil.readFile(histroyConfigFile);
-        } else {
-            fileUtil.createFile(romtePath);
-            histroyConfigFile = new File(romtePath);
-        }
-
-        if (!TextUtil.isEmpty(histroyConfigString)) {
-            histroyConfigJson = JSONObject.fromString(histroyConfigString);
-        }
-
+        allpath += name + File.separator;
+        histroyConfigFile = new HashMap<>();
     }
 
     // 获得histroy记录
-    public JSONObject getHistroyConfigJson() {
-        if (histroyConfigJson != null) {
-            return histroyConfigJson;
+    public List<String[]> getHistroyConfig(String subRomteDir) {
+        File temp = new File(allpath + subRomteDir + File.separator + "histroy.list");
+        if (temp.exists() && temp.isFile()) {
+            histroyConfigFile.put(subRomteDir, temp);
+            List<String[]> resultList = new ArrayList<>();
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader(temp));
+                String tempString = null;
+                while ((tempString = reader.readLine()) != null) {
+                    // output tempString
+                    String[] splitResult = tempString.split(",");
+                    resultList.add(splitResult);
+                }
+                reader.close();
+                return resultList;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (IOException e1) {
+
+                    }
+                }
+            }
+        } else {
+            try {
+                String histroyPath = temp.getAbsolutePath();
+                temp.delete();
+                File fileTemp = fileUtil.createFile(histroyPath);
+                histroyConfigFile.put(subRomteDir, fileTemp);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return null;
+
     }
 
     // 更新histroy记录
-    public boolean updateHistroyConfig(JSONObject data) {
+    public boolean updateHistroyConfig(List<String> data, String subRomteDir) {
         if (histroyConfigFile != null) {
-            fileUtil.writeFile(histroyConfigFile, data.toString().getBytes(), false);
-            histroyConfigJson = data;
-            return true;
+            File tempFile = histroyConfigFile.get(subRomteDir);
+            if (tempFile.exists()) {
+                StringBuilder stringBuilder = new StringBuilder();
+                for (String item : data) {
+                    stringBuilder.append(item);
+                }
+                fileUtil.writeFile(tempFile, stringBuilder.toString().getBytes(), false);
+                return true;
+            }
         }
         return false;
     }

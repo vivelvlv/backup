@@ -27,12 +27,25 @@ public class MD5FileUtil {
     }
 
     public static String getFileMD5String(File file) throws IOException {
-        FileInputStream in = new FileInputStream(file);
-        FileChannel ch = in.getChannel();
-        MappedByteBuffer byteBuffer = ch.map(FileChannel.MapMode.READ_ONLY, 0,
-                file.length());
-        messagedigest.update(byteBuffer);
-        return bufferToHex(messagedigest.digest());
+        FileInputStream in = null;
+        FileChannel ch = null;
+        try {
+            in = new FileInputStream(file);
+            ch = in.getChannel();
+            MappedByteBuffer byteBuffer = ch.map(FileChannel.MapMode.READ_ONLY, 0,
+                    file.length());
+            messagedigest.update(byteBuffer);
+            return bufferToHex(messagedigest.digest());
+        } finally {
+            if (in != null) {
+                try {
+                    ch.close();
+                    in.close();
+                } catch (Exception e) {
+
+                }
+            }
+        }
     }
 
     public static String getMD5String(String s) {
