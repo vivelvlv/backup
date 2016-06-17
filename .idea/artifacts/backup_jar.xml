@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="backup:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/backup_jar</output-path>
+    <root id="archive" name="backup.jar">
+      <element id="module-output" name="backup" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/company/xt/lib/jshortcut.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/company/xt/lib/commons-collections-3.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/company/xt/lib/commons-lang-2.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/company/xt/lib/json-lib-1.1-jdk13.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/company/xt/lib/xom-1.0d10.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/company/xt/lib/commons-beanutils.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/company/xt/lib/commons-logging.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/company/xt/lib/ezmorph-1.0.2.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

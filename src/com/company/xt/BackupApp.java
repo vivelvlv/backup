@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by vive on 16/6/5.
@@ -21,8 +22,29 @@ public class BackupApp {
 
     static FileUtil fileUtil = null;
 
+
+    // 从控制台读取内容
+    private static String readDataFromConsole(String prompt) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(prompt);
+        return scanner.nextLine();
+    }
+
+
     public static void main(String[] args) {
         System.out.println("您好,启动备份程序...");
+
+        String delayString = readDataFromConsole("多少小时后,启动程序?");
+        long delay = Long.parseLong(delayString);
+        try {
+            System.out.println("系统将等待 " + delay + " 小时后,开始备份");
+            if (delay > 0.1) {
+                Thread.sleep(delay * 60 * 60 * 1000);
+            }
+            System.out.println("**************开始备份**************");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         ThisClient client = new ThisClient();
         final String myName = client.getMyName();
         final String myServerAddress = client.getMyServerDir();
@@ -48,7 +70,7 @@ public class BackupApp {
                 // 获得本地需要备份的文件列表信息
                 final String item = backupDirList.optString(index);
                 // 计算文件夹下的所有文件的树状图,文件名,文件MD5,上一次修改时间
-                System.out.println("第一次时,对" + item + "目录下的文件进行MD5校验");
+                System.out.println("对" + item + "目录下的文件进行MD5校验");
 
                 File itemFile = new File(item);
                 List<String[]> histroyConfig = histroyServerConfig.getHistroyConfig(itemFile.getName());
@@ -65,10 +87,10 @@ public class BackupApp {
                 List<String> restoreList = new ArrayList<>();
                 for (String[] itemString : localFilesList) {
                     StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append(itemString[0]).append(",")
-                            .append(itemString[1]).append(",")
-                            .append(itemString[2]).append(",")
-                            .append(itemString[3]).append(",")
+                    stringBuilder.append(itemString[0]).append("<>")
+                            .append(itemString[1]).append("<>")
+                            .append(itemString[2]).append("<>")
+                            .append(itemString[3]).append("<>")
                             .append(itemString[4]).append(System.getProperty("line.separator"));
                     restoreList.add(stringBuilder.toString());
                 }
@@ -80,7 +102,9 @@ public class BackupApp {
 //            histroyServerConfig.updateHistroyConfig()
             try {
                 System.out.println("本轮备份工作已经完成,进入睡眠: " + dateFormat.format(new Date()));
-                Thread.sleep(sleepTime);
+                if (sleepTime > 1) {
+                    Thread.sleep(sleepTime);
+                }
                 System.out.println(intvalTime + "小时的执行周期到,开始进行新一轮备份工作...");
             } catch (InterruptedException e) {
                 e.printStackTrace();

@@ -48,7 +48,7 @@ public class ThisClientHistroy {
                 String tempString = null;
                 while ((tempString = reader.readLine()) != null) {
                     // output tempString
-                    String[] splitResult = tempString.split(",");
+                    String[] splitResult = tempString.split("<>");
                     resultList.add(splitResult);
                 }
                 reader.close();
