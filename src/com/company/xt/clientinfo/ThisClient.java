@@ -62,14 +62,14 @@ public class ThisClient {
 
     public String getMyServerDir() {
         if (TextUtil.isEmpty(myServerDir)) {
-            myServerDir = getObject("address", "请输入本机在server上的备份地址:");
+            myServerDir = getObject("address", "please input the remote address(backupServer address):");
         }
         return myServerDir;
     }
 
     public String getMyName() {
         if (TextUtil.isEmpty(myName)) {
-            myName = getObject("name", "请输入本机的名字:");
+            myName = getObject("name", "please input my computer name(HPLC-xx):");
         }
         return myName;
     }
