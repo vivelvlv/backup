@@ -75,7 +75,7 @@ public class ThisLocalConfig {
             }
         }
 
-        String tempInput = readDataFromConsole("请输入需要备份的目录路径,以逗号隔开");
+        String tempInput = readDataFromConsole("please input dirs you want to backup, split with ',' ");
         backupDirList = new JSONArray();
         String[] tempInputList = tempInput.split(",");
         for (String index : tempInputList) {
@@ -129,7 +129,7 @@ public class ThisLocalConfig {
             }
         }
 
-        String backupIntvalString = readDataFromConsole("请输入备份周期,单位小时");
+        String backupIntvalString = readDataFromConsole("please input repeat backup time (unit : hour)");
 
         backupIntval = Long.parseLong(backupIntvalString);
 

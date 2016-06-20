@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Created by vive on 16/6/5.
@@ -22,26 +21,12 @@ public class BackupApp {
 
     static FileUtil fileUtil = null;
 
-
-    // 从控制台读取内容
-    private static String readDataFromConsole(String prompt) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println(prompt);
-        return scanner.nextLine();
-    }
-
-
     public static void main(String[] args) {
-        System.out.println("您好,启动备份程序...");
+        System.out.println("...... backup is running ......");
 
-        String delayString = readDataFromConsole("多少小时后,启动程序?");
-        long delay = Long.parseLong(delayString);
         try {
-            System.out.println("系统将等待 " + delay + " 小时后,开始备份");
-            if (delay > 0.1) {
-                Thread.sleep(delay * 60 * 60 * 1000);
-            }
-            System.out.println("**************开始备份**************");
+            Thread.sleep(5 * 60 * 1000);
+            System.out.println("************** running backup now **************");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -56,7 +41,7 @@ public class BackupApp {
         long sleepTime = intvalTime * 60 * 60 * 1000;
         final Date date = new Date(beginTime);
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd,EE, HH:mm:ss");
-        System.out.println("启动备份日期是: " + dateFormat.format(date));
+        System.out.println("run time is : " + dateFormat.format(date));
 
 
         ThisClientHistroy histroyServerConfig = new ThisClientHistroy(myName, myServerAddress);
@@ -70,7 +55,7 @@ public class BackupApp {
                 // 获得本地需要备份的文件列表信息
                 final String item = backupDirList.optString(index);
                 // 计算文件夹下的所有文件的树状图,文件名,文件MD5,上一次修改时间
-                System.out.println("对" + item + "目录下的文件进行MD5校验");
+                System.out.println("for" + item + "checker file with MD5");
 
                 File itemFile = new File(item);
                 List<String[]> histroyConfig = histroyServerConfig.getHistroyConfig(itemFile.getName());
@@ -101,11 +86,11 @@ public class BackupApp {
 
 //            histroyServerConfig.updateHistroyConfig()
             try {
-                System.out.println("本轮备份工作已经完成,进入睡眠: " + dateFormat.format(new Date()));
+                System.out.println("finish backup this time, going to sleep : " + dateFormat.format(new Date()));
                 if (sleepTime > 1) {
                     Thread.sleep(sleepTime);
                 }
-                System.out.println(intvalTime + "小时的执行周期到,开始进行新一轮备份工作...");
+                System.out.println(intvalTime + "en.. it's time, backup program is running again....");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
