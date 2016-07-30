@@ -25,7 +25,7 @@ public class BackupApp {
         System.out.println("...... backup is running ......");
 
         try {
-            Thread.sleep(5 * 60 * 1000);
+            Thread.sleep(2 * 60 * 1000);
             System.out.println("************** running backup now **************");
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -64,7 +64,23 @@ public class BackupApp {
                     public boolean operate(File file, String[] info) {
                         // 需要拷贝的文件
                         String path = file.getAbsolutePath();
-                        fileUtil.copyFile(path, fileUtil.calcRomatePath(myName, myServerAddress, item, path), false);
+                        String desFilePath = fileUtil.calcRomatePath(myName, myServerAddress, item, path);
+                        try {
+                            File desFileParent = new File(desFilePath).getParentFile();
+                            if (!desFileParent.exists()) {
+                                desFileParent.mkdirs();
+                            }
+                            // for mac
+                            String[] cmd = {"cp", "-a", path, desFilePath};
+//                            System.out.println(cmd[0] + " " + cmd[1] + " " + cmd[2] + " " + cmd[3] + " ");
+                            Process process = Runtime.getRuntime().exec(cmd);
+                            process.waitFor();
+                            // for windows
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+//                        fileUtil.copyFile(path, fileUtil.calcRomatePath(myName, myServerAddress, item, path), false);
                         return false;
                     }
                 });
